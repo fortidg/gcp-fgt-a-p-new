@@ -144,7 +144,6 @@ resource "google_compute_forwarding_rule" "ifwd_rule" {
   ip_address            = each.value.ip_address
   all_ports             = true
   load_balancing_scheme = each.value.load_balancing_scheme
-  ip_protocol           = "L3_DEFAULT"
   backend_service       = each.value.backend_service
   allow_global_access   = true
 }
