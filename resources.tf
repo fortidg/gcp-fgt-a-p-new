@@ -188,3 +188,27 @@ resource "google_compute_firewall" "compute_firewall" {
     }
   }
 }
+
+resource "google_compute_router" "compute_router" {
+  for_each = local.compute_routers
+
+  name    = each.value.name
+  region  = each.value.region
+  network = each.value.network
+}
+
+resource "google_compute_router_nat" "compute_router_nat" {
+  for_each = local.compute_router_nats
+
+  name                               = each.value.name
+  router                             = google_compute_router.compute_router[each.value.router].name
+  region                             = each.value.region
+  nat_ip_allocate_option             = each.value.nat_ip_allocate_option
+  nat_ips                            = each.value.nat_ips
+  source_subnetwork_ip_ranges_to_nat = each.value.source_subnetwork_ip_ranges_to_nat
+
+  log_config {
+    enable = each.value.log_config_enable
+    filter = each.value.log_config_filter
+  }
+}

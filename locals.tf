@@ -104,6 +104,13 @@ locals {
       address      = null
       address_type = "INTERNAL"
     }
+    "nat-gateway-ip" = {
+      region       = local.region
+      name         = "${local.prefix}-nat-gateway-ip-${random_string.string.result}"
+      subnetwork   = null
+      address      = null
+      address_type = "EXTERNAL"
+    }
   }
 
 
@@ -158,6 +165,41 @@ locals {
       allow = [{
         protocol = "all"
       }]
+    }  
+      "mgmt-vpc-ingress" = {
+      name               = "${random_string.string.result}ingress-mgmt-vpc-allow-all"
+      network            = google_compute_network.vpc_networks["mgmt_vpc"].id
+      direction          = "INGRESS"
+      source_ranges      = ["0.0.0.0/0"]
+      destination_ranges = null
+      allow = [{
+        protocol = "all"
+      }]
+    }
+  }
+
+  #######################
+  # Cloud Router & NAT Gateway
+  #######################
+
+  compute_routers = {
+    "untrust-router" = {
+      name    = "${local.prefix}-untrust-router-${random_string.string.result}"
+      region  = local.region
+      network = google_compute_network.vpc_networks["untrust_vpc"].id
+    }
+  }
+
+  compute_router_nats = {
+    "untrust-nat" = {
+      name                               = "${local.prefix}-untrust-nat-${random_string.string.result}"
+      router                            = "untrust-router"
+      region                            = local.region
+      nat_ip_allocate_option            = "MANUAL_ONLY"
+      nat_ips                           = [google_compute_address.compute_address["nat-gateway-ip"].self_link]
+      source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
+      log_config_enable                 = true
+      log_config_filter                 = "ERRORS_ONLY"
     }
   }
 

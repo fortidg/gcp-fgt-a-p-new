@@ -67,6 +67,7 @@ config system ha
     set hbdev "port3" 50
     set session-pickup enable
     set ha-mgmt-status enable
+    set ha-redirect enable
     set password Fortinet1234$
     config ha-mgmt-interfaces
         edit 1
