@@ -6,6 +6,21 @@ locals {
   zone   = var.zone
   zone2  = var.zone2
 
+  # Machine family detection and configuration
+  machine_family = split("-", var.fortigate_machine_type)[0]
+  is_c4_family   = contains(["c4", "c4a"], local.machine_family)
+  is_c4a_family  = local.machine_family == "c4a"
+  is_c4_family_standard = local.machine_family == "c4"
+  
+  # Machine family specific configurations
+  # C4 and C4A families require hyperdisk-balanced disks
+  # N2 family uses standard persistent disks
+  machine_config = {
+    disk_type = local.is_c4_family ? "hyperdisk-balanced" : "pd-standard"
+    # Network interface count limits (if needed for future expansion)
+    max_network_interfaces = local.is_c4_family ? 8 : 8  # Both support up to 8 interfaces
+  }
+
   # VPC Networks
   vpc_networks = var.vpc_networks
 
@@ -211,13 +226,13 @@ locals {
     "fgt1-logdisk" = {
       name = "fgt1-logdisk-${random_string.string.result}"
       size = 30
-      type = "pd-standard"
+      type = local.machine_config.disk_type
       zone = local.zone
     }
     "fgt2-logdisk" = {
       name = "fgt2-logdisk-${random_string.string.result}"
       size = 30
-      type = "pd-standard"
+      type = local.machine_config.disk_type
       zone = local.zone2
     }
   }

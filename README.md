@@ -13,7 +13,7 @@ This terraform will deploy a High Availability pair of FortiGate VMs with 4 inte
    - `zone2` - Secondary availability zone (e.g., "us-central1-b")
    - `prefix` - A unique prefix for your resources
    - `fortigate_vm_image` - FortiGate VM image
-   - `fortigate_machine_type` - VM instance type
+   - `fortigate_machine_type` - VM instance type (supports n2-standard, c4-standard, c4a-standard families)
 1. Optionally customize VPC networks and subnets by uncommenting and modifying the `vpc_networks` and `subnets` variables in `terraform.tfvars`
 1. Run `terraform init`.
 1. Run `terraform plan`.
@@ -45,6 +45,32 @@ fortigate_license_files = {
 If you wish to deploy FortGates in only one zone, you can use the same value for "zone" and "zone2".
 
 FortiGates can be managed by putting `https://<fortigate-public-ip>:8443` into the url bar of your favorite browser. These IP addresses will be part of the Terraform outputs upon using apply.
+
+## Machine Type Support
+
+This template supports three Google Cloud machine families for FortiGate deployments:
+
+### Supported Machine Families:
+- **n2-standard** - Intel processors, balanced performance (e.g., n2-standard-4, n2-standard-8)
+- **c4-standard** - Intel processors, compute-optimized for high performance (e.g., c4-standard-4, c4-standard-8)
+- **c4a-standard** - AMD processors, compute-optimized for high performance (e.g., c4a-standard-4, c4a-standard-8)
+
+### Machine Family-Specific Optimizations:
+- **N2 family**: Uses standard persistent disks (pd-standard)
+- **C4 and C4A families**: Use hyperdisk-balanced for optimal performance
+- All families support up to 8 network interfaces and are compatible with FortiGate's multi-interface requirements
+
+### Choosing a Machine Type:
+- Use **n2-standard** for general purpose deployments with moderate throughput requirements
+- Use **c4-standard** for high-performance deployments requiring maximum CPU performance with Intel processors
+- Use **c4a-standard** for high-performance deployments with cost optimization using AMD processors
+
+Example configurations:
+```bash
+fortigate_machine_type = "n2-standard-4"     # 4 vCPUs, 16 GB RAM, Intel
+fortigate_machine_type = "c4-standard-4"     # 4 vCPUs, 16 GB RAM, Intel, High Performance
+fortigate_machine_type = "c4a-standard-4"    # 4 vCPUs, 16 GB RAM, AMD, High Performance
+```
 
 
 ## Network Architecture

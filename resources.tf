@@ -70,6 +70,13 @@ resource "google_compute_instance" "compute_instance" {
   }
 
   allow_stopping_for_update = each.value.allow_stopping_for_update
+  
+  depends_on = [
+    google_compute_router_nat.compute_router_nat,
+    google_compute_firewall.compute_firewall,
+    google_compute_route.default_route,
+    google_compute_address.compute_address
+  ]
 }
 
 

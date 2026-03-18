@@ -44,6 +44,11 @@ prefix = "resource-prefix"
 # 7.4.8 BYOL is projects/fortigcp-project-001/global/images/fortinet-fgt-748-20250529-001-w-license
 # 7.4.8 PAYG is "projects/fortigcp-project-001/global/images/fortinet-fgtondemand-748-20250529-001-w-license"
 fortigate_vm_image     = "projects/fortigcp-project-001/global/images/fortinet-fgt-748-20250529-001-w-license"
+
+# Machine type - supports three families:
+# n2-standard: Intel processors, standard performance, uses pd-standard disks (e.g., n2-standard-4, n2-standard-8)
+# c4-standard: Intel processors, compute-optimized performance, uses hyperdisk-balanced (e.g., c4-standard-4, c4-standard-8)
+# c4a-standard: AMD processors, compute-optimized performance, uses hyperdisk-balanced (e.g., c4a-standard-4, c4a-standard-8)
 fortigate_machine_type = "n2-standard-4"
 fortigate_license_files = {
   fgt1_instance    = { name = null }

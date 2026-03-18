@@ -6,7 +6,14 @@ variable "zone2" {}
 variable "prefix" {}
 
 # FortiGates
-variable "fortigate_machine_type" {}
+variable "fortigate_machine_type" {
+  type        = string
+  description = "Machine type for FortiGate instances. Supported families: n2-standard, c4-standard, c4a-standard"
+  validation {
+    condition = can(regex("^(n2-standard|c4-standard|c4a-standard)-", var.fortigate_machine_type))
+    error_message = "Machine type must be from n2-standard, c4-standard, or c4a-standard families."
+  }
+}
 variable "fortigate_vm_image" {}
 
 variable "fortigate_license_files" {}

@@ -67,7 +67,6 @@ config system ha
     set hbdev "port3" 50
     set session-pickup enable
     set ha-mgmt-status enable
-    set ha-redirect enable
     set password Fortinet1234$
     config ha-mgmt-interfaces
         edit 1
@@ -123,6 +122,23 @@ config firewall policy
         set comments "out to internet"
     next
 end
+
+--==FGTCONF==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="startup_delay.sh"
+
+#!/bin/bash
+# Wait for network infrastructure to be fully ready
+sleep 30
+# Test connectivity before proceeding
+for i in {1..10}; do
+    if ping -c 1 8.8.8.8 > /dev/null 2>&1; then
+        break
+    fi
+    sleep 10
+done
 
 %{ if license_type == "flex" }
 --==FGTCONF==
