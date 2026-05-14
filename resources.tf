@@ -60,6 +60,13 @@ resource "google_compute_instance" "compute_instance" {
           nat_ip = access_config.value.nat_ip
         }
       }
+      dynamic "alias_ip_range" {
+        for_each = lookup(network_interface.value, "alias_ip_range", [])
+        content {
+          ip_cidr_range         = alias_ip_range.value.ip_cidr_range
+          subnetwork_range_name = lookup(alias_ip_range.value, "subnetwork_range_name", null)
+        }
+      }
     }
   }
 

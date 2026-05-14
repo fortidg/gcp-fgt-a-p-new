@@ -105,3 +105,13 @@ variable "license_type" {
   default     = "flex"
   description = "License type: flex, payg or byol"
 }
+
+# Alias IP configuration for trust VPC
+variable "trust_alias_ip_ranges" {
+  type = map(list(object({
+    ip_cidr_range         = string
+    subnetwork_range_name = optional(string)
+  })))
+  description = "Optional alias IP ranges for trust VPC network interfaces. Keys should be 'fgt1' and 'fgt2'"
+  default     = {}
+}

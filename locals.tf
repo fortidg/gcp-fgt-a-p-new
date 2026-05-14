@@ -263,10 +263,11 @@ locals {
         access_config = []
         },
         {
-          network       = google_compute_network.vpc_networks["trust_vpc"].id
-          subnetwork    = google_compute_subnetwork.compute_subnetwork["trust-subnet-1"].name
-          network_ip    = google_compute_address.compute_address["fgt1-trust-ip"].address
-          access_config = []
+          network        = google_compute_network.vpc_networks["trust_vpc"].id
+          subnetwork     = google_compute_subnetwork.compute_subnetwork["trust-subnet-1"].name
+          network_ip     = google_compute_address.compute_address["fgt1-trust-ip"].address
+          access_config  = []
+          alias_ip_range = lookup(var.trust_alias_ip_ranges, "fgt1", [])
         },
         {
           network    = google_compute_network.vpc_networks["ha_vpc"].id
@@ -285,7 +286,7 @@ locals {
 
       metadata = {
         enable-oslogin = "TRUE"
-        user-data = data.template_file.template_file["fgt1-template"].rendered
+        user-data = local.rendered_templates["fgt1-template"]
        }
       service_account_scopes    = ["cloud-platform"]
       allow_stopping_for_update = true
@@ -312,10 +313,11 @@ locals {
         access_config = []
         },
         {
-          network       = google_compute_network.vpc_networks["trust_vpc"].id
-          subnetwork    = google_compute_subnetwork.compute_subnetwork["trust-subnet-1"].name
-          network_ip    = google_compute_address.compute_address["fgt2-trust-ip"].address
-          access_config = []
+          network        = google_compute_network.vpc_networks["trust_vpc"].id
+          subnetwork     = google_compute_subnetwork.compute_subnetwork["trust-subnet-1"].name
+          network_ip     = google_compute_address.compute_address["fgt2-trust-ip"].address
+          access_config  = []
+          alias_ip_range = lookup(var.trust_alias_ip_ranges, "fgt2", [])
         },
         {
           network    = google_compute_network.vpc_networks["ha_vpc"].id
@@ -334,7 +336,7 @@ locals {
 
       metadata = {
         enable-oslogin = "TRUE"
-        user-data = data.template_file.template_file["fgt2-template"].rendered
+        user-data = local.rendered_templates["fgt2-template"]
       }
       service_account_scopes    = ["cloud-platform"]
       allow_stopping_for_update = true
@@ -358,6 +360,7 @@ locals {
       port1-ip         = google_compute_address.compute_address["fgt1-untrust-ip"].address
       port2-ip         = google_compute_address.compute_address["fgt1-trust-ip"].address
       port2-sub        = google_compute_subnetwork.compute_subnetwork["trust-subnet-1"].ip_cidr_range
+      port2_alias_ips  = [for alias in lookup(var.trust_alias_ip_ranges, "fgt1", []) : split("/", alias.ip_cidr_range)[0]]
       port3-ip         = google_compute_address.compute_address["fgt1-ha-ip"].address
       port3-sub        = google_compute_subnetwork.compute_subnetwork["ha-subnet-1"].ip_cidr_range
       port4-ip         = google_compute_address.compute_address["fgt1-mgmt-ip"].address
@@ -383,6 +386,7 @@ locals {
       port1-ip         = google_compute_address.compute_address["fgt2-untrust-ip"].address
       port2-ip         = google_compute_address.compute_address["fgt2-trust-ip"].address
       port2-sub        = google_compute_subnetwork.compute_subnetwork["trust-subnet-1"].ip_cidr_range
+      port2_alias_ips  = [for alias in lookup(var.trust_alias_ip_ranges, "fgt2", []) : split("/", alias.ip_cidr_range)[0]]
       port3-ip         = google_compute_address.compute_address["fgt2-ha-ip"].address
       port3-sub        = google_compute_subnetwork.compute_subnetwork["ha-subnet-1"].ip_cidr_range
       port4-ip         = google_compute_address.compute_address["fgt2-mgmt-ip"].address

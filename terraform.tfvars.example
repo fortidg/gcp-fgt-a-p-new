@@ -58,3 +58,20 @@ license_type = "flex" # can be byol, flex, or payg, make sure the license is cor
 flex_tokens = ["token1", "token2"]
 admin_port = 8443
 fgt_password = "fortinet"
+
+# Optional: Add alias IP ranges to the trust VPC network interfaces
+# trust_alias_ip_ranges = {
+#   fgt1 = [
+#     {
+#       ip_cidr_range = "10.0.2.100/32"
+#     },
+#     {
+#       ip_cidr_range = "10.0.2.101/32"
+#     }
+#   ]
+#   fgt2 = [
+#     {
+#       ip_cidr_range = "10.0.2.200/32"
+#     }
+#   ]
+# }

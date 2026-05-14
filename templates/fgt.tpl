@@ -46,6 +46,12 @@ config system interface
         set ip ${ilb_ip}/32
         set allowaccess probe-response
     next
+%{ for idx, alias_ip in port2_alias_ips ~}
+      edit ${idx + 1}
+        set ip ${alias_ip}/32
+        set allowaccess probe-response
+    next
+%{ endfor ~}
   end
   next
   edit port3
