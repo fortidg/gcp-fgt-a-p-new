@@ -7,6 +7,12 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment; filename="config"
 
+config system vdom-exception
+    edit 1
+        set object system.interface
+    next
+end
+
 config system global
     set admin-sport ${admin_port}
     set hostname ${fgt_name}
@@ -27,14 +33,13 @@ config system interface
   edit port1
      set mode static
      set ip ${port1-ip}/32
-     set allowaccess https ssh
-     set secondary-IP enable
-     config secondaryip
-       edit 0
-         set ip ${elb_ip}/32
-         set allowaccess probe-response
-      next
-  end   
+     set allowaccess https ssh  
+  next
+  edit lo0
+      set vdom root
+      set ip ${elb_ip}/32
+      set type loopback
+      set allowaccess probe-response
   next
   edit port2
     set mode static
@@ -115,6 +120,18 @@ config system probe-response
     set port ${healthcheck_port}
 end
 
+config firewall address
+    edit lo0
+        set subnet ${elb_ip}/32
+    next
+end
+
+config firewall service custom
+    edit "probe"
+        set tcp-portrange 8008
+    next
+end
+
 config firewall policy
     edit 1
         set name "outbound"
@@ -126,6 +143,16 @@ config firewall policy
         set schedule "always"
         set service "ALL"
         set comments "out to internet"
+    next
+    edit 2
+        set name "in-to-loopback"
+        set srcintf "port1"
+        set dstintf "lo0"
+        set action accept
+        set srcaddr "all"
+        set dstaddr "lo0"
+        set schedule "always"
+        set service "IKE" "ESP" "probe"
     next
 end
 
