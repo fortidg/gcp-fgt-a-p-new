@@ -5,7 +5,41 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="startup_delay.sh"
+
+%{ if license_type == "flex" }
+--==FGTCONF==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="license"
+
+LICENSE-TOKEN:${license_token}
+
+%{ endif }
+
+%{ if license_type == "byol" }
+--==FGTCONF==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="license"
+
+${file(license_file)}
+
+%{ endif }
+
+--==FGTCONF==--
+
+--==FGTCONF==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment; filename="config"
+
+config system fips-cc
+    set status fips-ciphers
+end
 
 config system vdom-exception
     edit 1
@@ -47,15 +81,15 @@ config system interface
     set allowaccess probe-response
     set secondary-IP enable
     config secondaryip
-      edit 0
+      edit 1
         set ip ${ilb_ip}/32
         set allowaccess probe-response
-    next
+      next
 %{ for idx, alias_ip in port2_alias_ips ~}
-      edit ${idx + 1}
+      edit ${idx + 2}
         set ip ${alias_ip}/32
         set allowaccess probe-response
-    next
+      next
 %{ endfor ~}
   end
   next
@@ -152,36 +186,8 @@ config firewall policy
         set srcaddr "all"
         set dstaddr "lo0"
         set schedule "always"
-        set service "IKE" "ESP" "probe"
+        set service "IKE" "probe"
     next
 end
-
---==FGTCONF==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="startup_delay.sh"
-
-%{ if license_type == "flex" }
---==FGTCONF==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="license"
-
-LICENSE-TOKEN:${license_token}
-
-%{ endif }
-
-%{ if license_type == "byol" }
---==FGTCONF==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="license"
-
-${file(license_file)}
-
-%{ endif }
 
 --==FGTCONF==--
