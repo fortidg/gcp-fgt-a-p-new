@@ -2,6 +2,9 @@
 
 This terraform will deploy a High Availability pair of FortiGate VMs with 4 interfaces in newly created VPC networks. Port1 will be in the "untrust" network, port 2 will be in the "trust" network, port 3 will serve as heartbeat, and port 4 will be management. Each interface is deployed in a separate VPC network for security segmentation. There are no Public IP's assigned to port1. This design uses a "Load Balancer Sandwich", with FortiGates in a back end set. The external load balancer has been assigned a public IP address. Port4 (management) on both FortiGates have been assigned public IP addresses. You will be able to manage the FortiGates with these.
 
+> [!NOTE]
+> This branch adds FIPS-CC enablement in the FortiGate cloudinit template.  Also, instead of port1 on FortiGate answering probes, this functionality has been moved to loopback0.
+
 ## How do you run these?
 
 1. Log into GCP console and open a cloud shell.
