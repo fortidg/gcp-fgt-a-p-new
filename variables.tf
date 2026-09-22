@@ -28,6 +28,12 @@ variable "fgt_password" {
   default     = ""
   description = "FortiGate Password"
 }
+variable "ha_password" {
+  type        = string
+  default     = ""
+  sensitive   = true
+  description = "FGCP HA group password"
+}
 variable "admin_port" {}
 
 # debug

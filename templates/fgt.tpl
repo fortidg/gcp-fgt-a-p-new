@@ -41,6 +41,25 @@ config system fips-cc
     set status fips-ciphers
 end
 
+# NOTE: fips-ciphers restricts IKE phase 1, SSH and TLS ciphers. It does NOT
+# restrict IPsec phase 2 proposals - the full list, including null-md5,
+# null-sha1, des-* and 3des-*, remains selectable. An operator can therefore
+# negotiate an approved phase 1 and then protect payload with NULL encryption.
+#
+# Pin both phases explicitly on every tunnel. This template does not create
+# tunnels, so add the proposals wherever yours are defined:
+#
+# config vpn ipsec phase1-interface
+#     edit "<name>"
+#         set proposal aes256-sha256 aes256gcm-prfsha384
+#     next
+# end
+# config vpn ipsec phase2-interface
+#     edit "<name>"
+#         set proposal aes256-sha256 aes256gcm
+#     next
+# end
+
 config system vdom-exception
     edit 1
         set object system.interface
@@ -112,7 +131,7 @@ config system ha
     set hbdev "port3" 50
     set session-pickup enable
     set ha-mgmt-status enable
-    set password Fortinet1234$
+    set password ${ha_password}
     config ha-mgmt-interfaces
         edit 1
             set interface "port4"
