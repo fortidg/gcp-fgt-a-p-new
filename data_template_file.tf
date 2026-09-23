@@ -4,6 +4,7 @@ locals {
       fgt_name         = value.fgt_name
       admin_port       = var.admin_port
       fgt_password     = var.fgt_password
+      ha_password      = var.ha_password
       healthcheck_port = var.healthcheck_port
       license_type     = value.license_type
       license_file     = value.license_file

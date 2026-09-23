@@ -5,6 +5,15 @@ This terraform will deploy a High Availability pair of FortiGate VMs with 4 inte
 > [!NOTE]
 > This branch adds FIPS-CC enablement in the FortiGate cloudinit template.  Also, instead of port1 on FortiGate answering probes, this functionality has been moved to loopback0.
 
+> **FIPS scope note.** The template sets `set status fips-ciphers`, which is FIPS cipher mode, not full
+> FIPS-CC mode (`set status enable`). Cipher mode restricts IKE phase 1, SSH and TLS ciphers. It does
+> **not** restrict IPsec **phase 2** proposals: the full list, including `null-md5`, `null-sha1`,
+> `des-*` and `3des-*`, stays selectable. Pin phase 1 and phase 2 proposals explicitly on every
+> tunnel. See the commented block in `templates/fgt.tpl`.
+>
+> Neither mode produces a CMVP certificate. `fips-ciphers` is a cipher policy; a validated module is a
+> specific certified firmware build on a certified platform.
+
 ## How do you run these?
 
 1. Log into GCP console and open a cloud shell.

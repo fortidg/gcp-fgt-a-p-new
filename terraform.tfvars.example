@@ -58,6 +58,7 @@ license_type = "flex" # can be byol, flex, or payg, make sure the license is cor
 flex_tokens = ["token1", "token2"]
 admin_port = 8443
 fgt_password = "fortinet"
+ha_password  = "changeme"
 
 # Optional: Add alias IP ranges to the trust VPC network interfaces
 # trust_alias_ip_ranges = {
