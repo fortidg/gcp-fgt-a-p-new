@@ -37,6 +37,7 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment; filename="config"
 
+%{ if enable_fips_ciphers }
 config system fips-cc
     set status fips-ciphers
 end
@@ -59,6 +60,7 @@ end
 #         set proposal aes256-sha256 aes256gcm
 #     next
 # end
+%{ endif }
 
 config system vdom-exception
     edit 1
@@ -87,13 +89,24 @@ config system interface
      set mode static
      set ip ${port1-ip}/32
      set allowaccess https ssh  
+%{ if !enable_loopback }
+     set secondary-IP enable
+     config secondaryip
+       edit 1
+         set ip ${elb_ip}/32
+         set allowaccess probe-response
+       next
+     end
+%{ endif }
   next
+%{ if enable_loopback }
   edit lo0
       set vdom root
       set ip ${elb_ip}/32
       set type loopback
       set allowaccess probe-response
   next
+%{ endif }
   edit port2
     set mode static
     set ip ${port2-ip}/32
@@ -173,6 +186,7 @@ config system probe-response
     set port ${healthcheck_port}
 end
 
+%{ if enable_loopback }
 config firewall address
     edit lo0
         set subnet ${elb_ip}/32
@@ -181,10 +195,11 @@ end
 
 config firewall service custom
     edit "probe"
-        set tcp-portrange 8008
+        set tcp-portrange ${healthcheck_port}
     next
 end
 
+%{ endif }
 config firewall policy
     edit 1
         set name "outbound"
@@ -197,6 +212,7 @@ config firewall policy
         set service "ALL"
         set comments "out to internet"
     next
+%{ if enable_loopback }
     edit 2
         set name "in-to-loopback"
         set srcintf "port1"
@@ -207,6 +223,7 @@ config firewall policy
         set schedule "always"
         set service "IKE" "probe"
     next
+%{ endif }
 end
 
 --==FGTCONF==--

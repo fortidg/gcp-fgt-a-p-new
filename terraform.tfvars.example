@@ -57,6 +57,11 @@ fortigate_license_type = "byol" # "byol" for flex/byol licensing, "payg" for PAY
 # c4-standard: Intel processors, compute-optimized performance, uses hyperdisk-balanced (e.g., c4-standard-4, c4-standard-8)
 # c4a-standard: AMD processors, compute-optimized performance, uses hyperdisk-balanced (e.g., c4a-standard-4, c4a-standard-8)
 fortigate_machine_type = "n2-standard-4"
+
+# Optional FortiGate configuration (both default to false).
+enable_fips_ciphers = false # Enable FIPS cipher mode, not full FIPS-CC mode.
+enable_loopback     = false # Move the external load balancer probe address from port1 to lo0.
+
 fortigate_license_files = {
   fgt1_instance = { name = null }
   fgt2_instance = { name = null }

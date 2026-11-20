@@ -46,6 +46,18 @@ variable "fortigate_vm_image" {
 
 variable "fortigate_license_files" {}
 
+variable "enable_fips_ciphers" {
+  type        = bool
+  default     = false
+  description = "Enable FortiGate FIPS cipher mode in the startup configuration."
+}
+
+variable "enable_loopback" {
+  type        = bool
+  default     = false
+  description = "Use lo0 for the external load balancer probe address instead of a secondary IP on port1."
+}
+
 variable "fgt_username" {
   type        = string
   default     = ""

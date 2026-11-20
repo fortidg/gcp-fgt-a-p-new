@@ -3,9 +3,9 @@
 This terraform will deploy a High Availability pair of FortiGate VMs with 4 interfaces in newly created VPC networks. Port1 will be in the "untrust" network, port 2 will be in the "trust" network, port 3 will serve as heartbeat, and port 4 will be management. Each interface is deployed in a separate VPC network for security segmentation. There are no Public IP's assigned to port1. This design uses a "Load Balancer Sandwich", with FortiGates in a back end set. The external load balancer has been assigned a public IP address. Port4 (management) on both FortiGates have been assigned public IP addresses. You will be able to manage the FortiGates with these.
 
 > [!NOTE]
-> This branch adds FIPS-CC enablement in the FortiGate cloudinit template.  Also, instead of port1 on FortiGate answering probes, this functionality has been moved to loopback0.
+> FIPS cipher mode and loopback probe handling are optional. Both are disabled by default.
 
-> **FIPS scope note.** The template sets `set status fips-ciphers`, which is FIPS cipher mode, not full
+> **FIPS scope note.** With `enable_fips_ciphers = true`, the template sets `set status fips-ciphers`, which is FIPS cipher mode, not full
 > FIPS-CC mode (`set status enable`). Cipher mode restricts IKE phase 1, SSH and TLS ciphers. It does
 > **not** restrict IPsec **phase 2** proposals: the full list, including `null-md5`, `null-sha1`,
 > `des-*` and `3des-*`, stays selectable. Pin phase 1 and phase 2 proposals explicitly on every
@@ -28,12 +28,27 @@ This terraform will deploy a High Availability pair of FortiGate VMs with 4 inte
    - `fortigate_license_type` - `payg` or `byol`; defaults to match `license_type` (`flex` uses BYOL)
    - `fortigate_vm_image` - Optional full image path to pin an exact image
    - `fortigate_machine_type` - VM instance type (supports n2-standard, c4-standard, c4a-standard families)
+   - `enable_fips_ciphers` - Enable FIPS cipher mode (default: `false`)
+   - `enable_loopback` - Use `lo0` for the external load balancer probe address (default: `false`)
 1. Optionally customize VPC networks and subnets by uncommenting and modifying the `vpc_networks` and `subnets` variables in `terraform.tfvars`
 1. Run `terraform init`.
 1. Run `terraform plan`.
 1. If the plan looks good, run `terraform apply`.
 
 The prefix mentioned above is simply a memorable string of text to differentiate the resources deployed by this code.
+
+### Optional FortiGate configuration
+
+Both settings are independent and default to `false`:
+
+```hcl
+enable_fips_ciphers = true
+enable_loopback     = true
+```
+
+With loopback disabled, the external load balancer probe address is a secondary IP on `port1`. Enabling loopback moves that address and probe response to `lo0` and adds the related FortiGate address, service, and firewall policy.
+
+For an existing deployment that uses the current FIPS and loopback configuration, set both variables to `true` before applying an upgrade.
 
 ### FortiGate image selection
 
