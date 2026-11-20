@@ -18,13 +18,15 @@ This terraform will deploy a High Availability pair of FortiGate VMs with 4 inte
 
 1. Log into GCP console and open a cloud shell.
 1. Use `git clone https://github.com/fortidg/gcp-fgt-a-p-new.git` to clone this repo.
-1. Copy `terraform.tfvars.example` to `terraform.tfvars` and update the required variables:
+1. Copy `terraform.tfvars.example` to `terraform.tfvars` and update the variables for your deployment:
    - `project` - Your GCP project ID
    - `region` - GCP region (e.g., "us-central1")
    - `zone` - Primary availability zone (e.g., "us-central1-a")
    - `zone2` - Secondary availability zone (e.g., "us-central1-b")
    - `prefix` - A unique prefix for your resources
-   - `fortigate_vm_image` - FortiGate VM image
+   - `fortigate_version` - `latest` (default), or a FortiOS image family such as `76` or `80`
+   - `fortigate_license_type` - `payg` or `byol`; defaults to match `license_type` (`flex` uses BYOL)
+   - `fortigate_vm_image` - Optional full image path to pin an exact image
    - `fortigate_machine_type` - VM instance type (supports n2-standard, c4-standard, c4a-standard families)
 1. Optionally customize VPC networks and subnets by uncommenting and modifying the `vpc_networks` and `subnets` variables in `terraform.tfvars`
 1. Run `terraform init`.
@@ -32,6 +34,18 @@ This terraform will deploy a High Availability pair of FortiGate VMs with 4 inte
 1. If the plan looks good, run `terraform apply`.
 
 The prefix mentioned above is simply a memorable string of text to differentiate the resources deployed by this code.
+
+### FortiGate image selection
+
+The default `fortigate_version = "latest"` selects the newest published FortiGate image for the selected image license type. Set `fortigate_version = "76"` to use the latest patch in the `fortigate-76-byol` or `fortigate-76-payg` image family. Set `fortigate_vm_image` to a full image path to pin an exact build; that takes precedence over both image selection variables. Terraform resolves the image at plan time, so a newer matching image can appear as an instance change on a later plan.
+
+For PAYG with the newest published image:
+
+```hcl
+license_type           = "payg"
+fortigate_license_type = "payg"
+fortigate_version      = "latest"
+```
 
 ### Licensing
 

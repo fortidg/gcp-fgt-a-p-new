@@ -10,11 +10,39 @@ variable "fortigate_machine_type" {
   type        = string
   description = "Machine type for FortiGate instances. Supported families: n2-standard, c4-standard, c4a-standard"
   validation {
-    condition = can(regex("^(n2-standard|c4-standard|c4a-standard)-", var.fortigate_machine_type))
+    condition     = can(regex("^(n2-standard|c4-standard|c4a-standard)-", var.fortigate_machine_type))
     error_message = "Machine type must be from n2-standard, c4-standard, or c4a-standard families."
   }
 }
-variable "fortigate_vm_image" {}
+variable "fortigate_license_type" {
+  type        = string
+  default     = null
+  description = "Image license type: payg or byol. Defaults to payg when license_type is payg, otherwise byol."
+  validation {
+    condition     = var.fortigate_license_type == null || contains(["payg", "byol"], var.fortigate_license_type)
+    error_message = "fortigate_license_type must be payg or byol."
+  }
+}
+
+variable "fortigate_version" {
+  type        = string
+  default     = "latest"
+  description = "FortiOS image family version (for example 76 or 80), or latest for the newest published image."
+  validation {
+    condition     = var.fortigate_version == "latest" || can(regex("^[0-9]{2,3}$", var.fortigate_version))
+    error_message = "fortigate_version must be latest or a two- or three-digit image family version such as 76 or 80."
+  }
+}
+
+variable "fortigate_vm_image" {
+  type        = string
+  default     = null
+  description = "Optional full image path. Overrides fortigate_version and fortigate_license_type."
+  validation {
+    condition     = var.fortigate_vm_image == null || length(trimspace(var.fortigate_vm_image)) > 0
+    error_message = "fortigate_vm_image must be a nonempty image path when set."
+  }
+}
 
 variable "fortigate_license_files" {}
 

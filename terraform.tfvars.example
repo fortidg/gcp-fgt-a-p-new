@@ -1,7 +1,7 @@
 project = "project_name"
 region  = "region_name"
 zone    = "az1 name"
-zone2 = "az2 name"
+zone2   = "az2 name"
 
 # Prefixed to all resources
 prefix = "resource-prefix"
@@ -39,11 +39,18 @@ prefix = "resource-prefix"
 # }
 
 # FortiGate image and instance type
-# 7.4.12 BYOL is projects/fortigcp-project-001/global/images/fortinet-fgt-7412-20260511-001-w-license
-# 7.4.12 PAYG is "projects/fortigcp-project-001/global/images/fortinet-fgtondemand-7412-20260511-001-w-license"
-# 7.6.7 BYOL is projects/fortigcp-project-001/global/images/fortinet-fgt-767-20260604-001-w-license
-# 7.6.7 PAYG is "projects/fortigcp-project-001/global/images/fortinet-fgtondemand-767-20260604-001-w-license" 
-fortigate_vm_image     = "projects/fortigcp-project-001/global/images/fortinet-fgt-767-20260604-001-w-license"
+# "latest" selects the newest published image for the chosen license type.
+# Set "76" or "80" to select the latest patch in that FortiOS image family.
+fortigate_version      = "latest"
+fortigate_license_type = "byol" # "byol" for flex/byol licensing, "payg" for PAYG
+
+# Optional: pin an exact image instead of tracking a family or the latest release.
+# This overrides fortigate_version and fortigate_license_type.
+# 7.4.12 BYOL: projects/fortigcp-project-001/global/images/fortinet-fgt-7412-20260511-001-w-license
+# 7.4.12 PAYG: projects/fortigcp-project-001/global/images/fortinet-fgtondemand-7412-20260511-001-w-license
+# 7.6.7 BYOL: projects/fortigcp-project-001/global/images/fortinet-fgt-767-20260604-001-w-license
+# 7.6.7 PAYG: projects/fortigcp-project-001/global/images/fortinet-fgtondemand-767-20260604-001-w-license
+# fortigate_vm_image = "projects/fortigcp-project-001/global/images/fortinet-fgt-768-20261016-001-w-license"
 
 # Machine type - supports three families:
 # n2-standard: Intel processors, standard performance, uses pd-standard disks (e.g., n2-standard-4, n2-standard-8)
@@ -51,12 +58,12 @@ fortigate_vm_image     = "projects/fortigcp-project-001/global/images/fortinet-f
 # c4a-standard: AMD processors, compute-optimized performance, uses hyperdisk-balanced (e.g., c4a-standard-4, c4a-standard-8)
 fortigate_machine_type = "n2-standard-4"
 fortigate_license_files = {
-  fgt1_instance    = { name = null }
+  fgt1_instance = { name = null }
   fgt2_instance = { name = null }
 }
 license_type = "flex" # can be byol, flex, or payg, make sure the license is correct for the sku
-flex_tokens = ["token1", "token2"]
-admin_port = 8443
+flex_tokens  = ["token1", "token2"]
+admin_port   = 8443
 fgt_password = "fortinet"
 ha_password  = "changeme"
 

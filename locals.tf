@@ -7,28 +7,30 @@ locals {
   zone2  = var.zone2
 
   # Machine family detection and configuration
-  machine_family = split("-", var.fortigate_machine_type)[0]
-  is_c4_family   = contains(["c4", "c4a"], local.machine_family)
-  is_c4a_family  = local.machine_family == "c4a"
+  machine_family        = split("-", var.fortigate_machine_type)[0]
+  is_c4_family          = contains(["c4", "c4a"], local.machine_family)
+  is_c4a_family         = local.machine_family == "c4a"
   is_c4_family_standard = local.machine_family == "c4"
-  
+
   # Machine family specific configurations
   # C4 and C4A families require hyperdisk-balanced disks
   # N2 family uses standard persistent disks
   machine_config = {
     disk_type = local.is_c4_family ? "hyperdisk-balanced" : "pd-standard"
     # Network interface count limits (if needed for future expansion)
-    max_network_interfaces = local.is_c4_family ? 8 : 8  # Both support up to 8 interfaces
+    max_network_interfaces = local.is_c4_family ? 8 : 8 # Both support up to 8 interfaces
   }
 
   # VPC Networks
   vpc_networks = var.vpc_networks
 
-  fortigate_machine_type  = var.fortigate_machine_type
-  fortigate_vm_image      = var.fortigate_vm_image
-  fortigate_license_files = var.fortigate_license_files
-  flex_tokens            = var.flex_tokens
-  license_type = var.license_type
+  fortigate_machine_type       = var.fortigate_machine_type
+  fortigate_image_license_type = var.fortigate_license_type == null ? (var.license_type == "payg" ? "payg" : "byol") : var.fortigate_license_type
+  fortigate_image_name_prefix  = local.fortigate_image_license_type == "payg" ? "fortinet-fgtondemand" : "fortinet-fgt"
+  fortigate_vm_image           = var.fortigate_vm_image == null ? data.google_compute_image.fortigate[0].id : var.fortigate_vm_image
+  fortigate_license_files      = var.fortigate_license_files
+  flex_tokens                  = var.flex_tokens
+  license_type                 = var.license_type
 
   #######################
   # Static IPs
@@ -180,8 +182,8 @@ locals {
       allow = [{
         protocol = "all"
       }]
-    }  
-      "mgmt-vpc-ingress" = {
+    }
+    "mgmt-vpc-ingress" = {
       name               = "${random_string.string.result}ingress-mgmt-vpc-allow-all"
       network            = google_compute_network.vpc_networks["mgmt_vpc"].id
       direction          = "INGRESS"
@@ -208,13 +210,13 @@ locals {
   compute_router_nats = {
     "untrust-nat" = {
       name                               = "${local.prefix}-untrust-nat-${random_string.string.result}"
-      router                            = "untrust-router"
-      region                            = local.region
-      nat_ip_allocate_option            = "MANUAL_ONLY"
-      nat_ips                           = [google_compute_address.compute_address["nat-gateway-ip"].self_link]
+      router                             = "untrust-router"
+      region                             = local.region
+      nat_ip_allocate_option             = "MANUAL_ONLY"
+      nat_ips                            = [google_compute_address.compute_address["nat-gateway-ip"].self_link]
       source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
-      log_config_enable                 = true
-      log_config_filter                 = "ERRORS_ONLY"
+      log_config_enable                  = true
+      log_config_filter                  = "ERRORS_ONLY"
     }
   }
 
@@ -270,12 +272,12 @@ locals {
           alias_ip_range = lookup(var.trust_alias_ip_ranges, "fgt1", [])
         },
         {
-          network    = google_compute_network.vpc_networks["ha_vpc"].id
-          subnetwork = google_compute_subnetwork.compute_subnetwork["ha-subnet-1"].name
-          network_ip = google_compute_address.compute_address["fgt1-ha-ip"].address
+          network       = google_compute_network.vpc_networks["ha_vpc"].id
+          subnetwork    = google_compute_subnetwork.compute_subnetwork["ha-subnet-1"].name
+          network_ip    = google_compute_address.compute_address["fgt1-ha-ip"].address
           access_config = []
-          },
-          {
+        },
+        {
           network    = google_compute_network.vpc_networks["mgmt_vpc"].id
           subnetwork = google_compute_subnetwork.compute_subnetwork["mgmt-subnet-1"].name
           network_ip = google_compute_address.compute_address["fgt1-mgmt-ip"].address
@@ -286,8 +288,8 @@ locals {
 
       metadata = {
         enable-oslogin = "TRUE"
-        user-data = local.rendered_templates["fgt1-template"]
-       }
+        user-data      = local.rendered_templates["fgt1-template"]
+      }
       service_account_scopes    = ["cloud-platform"]
       allow_stopping_for_update = true
     }
@@ -320,12 +322,12 @@ locals {
           alias_ip_range = lookup(var.trust_alias_ip_ranges, "fgt2", [])
         },
         {
-          network    = google_compute_network.vpc_networks["ha_vpc"].id
-          subnetwork = google_compute_subnetwork.compute_subnetwork["ha-subnet-1"].name
-          network_ip = google_compute_address.compute_address["fgt2-ha-ip"].address
+          network       = google_compute_network.vpc_networks["ha_vpc"].id
+          subnetwork    = google_compute_subnetwork.compute_subnetwork["ha-subnet-1"].name
+          network_ip    = google_compute_address.compute_address["fgt2-ha-ip"].address
           access_config = []
-          },
-          {
+        },
+        {
           network    = google_compute_network.vpc_networks["mgmt_vpc"].id
           subnetwork = google_compute_subnetwork.compute_subnetwork["mgmt-subnet-1"].name
           network_ip = google_compute_address.compute_address["fgt2-mgmt-ip"].address
@@ -336,7 +338,7 @@ locals {
 
       metadata = {
         enable-oslogin = "TRUE"
-        user-data = local.rendered_templates["fgt2-template"]
+        user-data      = local.rendered_templates["fgt2-template"]
       }
       service_account_scopes    = ["cloud-platform"]
       allow_stopping_for_update = true
@@ -354,9 +356,9 @@ locals {
       admin_port       = var.admin_port
       fgt_password     = var.fgt_password
       healthcheck_port = var.healthcheck_port
-      license_type    = var.license_type
-      license_token = local.flex_tokens[0] != "" ? local.flex_tokens[0] : null
-      license_file  = local.fortigate_license_files["fgt1_instance"].name != null ? local.fortigate_license_files["fgt1_instance"].name : null
+      license_type     = var.license_type
+      license_token    = local.flex_tokens[0] != "" ? local.flex_tokens[0] : null
+      license_file     = local.fortigate_license_files["fgt1_instance"].name != null ? local.fortigate_license_files["fgt1_instance"].name : null
       port1-ip         = google_compute_address.compute_address["fgt1-untrust-ip"].address
       port2-ip         = google_compute_address.compute_address["fgt1-trust-ip"].address
       port2-sub        = google_compute_subnetwork.compute_subnetwork["trust-subnet-1"].ip_cidr_range
@@ -380,9 +382,9 @@ locals {
       admin_port       = var.admin_port
       fgt_password     = var.fgt_password
       healthcheck_port = var.healthcheck_port
-      license_type    = var.license_type
-      license_token = local.flex_tokens[1] != "" ? local.flex_tokens[1] : null
-      license_file = local.fortigate_license_files["fgt2_instance"].name != null ? local.fortigate_license_files["fgt2_instance"].name : null
+      license_type     = var.license_type
+      license_token    = local.flex_tokens[1] != "" ? local.flex_tokens[1] : null
+      license_file     = local.fortigate_license_files["fgt2_instance"].name != null ? local.fortigate_license_files["fgt2_instance"].name : null
       port1-ip         = google_compute_address.compute_address["fgt2-untrust-ip"].address
       port2-ip         = google_compute_address.compute_address["fgt2-trust-ip"].address
       port2-sub        = google_compute_subnetwork.compute_subnetwork["trust-subnet-1"].ip_cidr_range
